@@ -16,6 +16,7 @@
   --font-hand: 'Caveat', cursive;
   --radius: 18px;
   --tap: 44px;
+  --gutter: 16px;
 }
 
 *,
@@ -50,6 +51,12 @@ h3 {
   margin: 0;
 }
 
+/* Los títulos reciben el foco por código al entrar a cada escena (para lectores de pantalla);
+   no son interactivos, así que no muestran anillo. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
 .app {
   position: relative;
   width: 100%;
@@ -63,53 +70,13 @@ h3 {
   inset: 0;
 }
 
-.hero {
-  position: absolute;
-  top: max(24px, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(92vw, 560px);
-  padding: 18px 22px;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--rosa-palo) 82%, transparent);
-  backdrop-filter: blur(6px);
-  text-align: center;
-  pointer-events: none;
-}
-
-.hero h1 {
-  font-size: clamp(1.6rem, 6vw, 2.4rem);
-}
-
-.hero-kicker {
-  margin: 0 0 4px;
-  font-family: var(--font-hand);
-  font-weight: 600;
-  font-size: 1.5rem;
-}
-
-/* Celular en horizontal: tarjeta compacta para no tapar el sol ni el horizonte. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .hero {
-    top: max(10px, env(safe-area-inset-top));
-    width: min(70vw, 460px);
-    padding: 8px 16px;
-  }
-
-  .hero h1 {
-    font-size: 1.25rem;
-  }
-
-  .hero-kicker {
-    font-size: 1.15rem;
-    margin: 0;
-  }
-}
+/* ---------- Botones y navegación ---------- */
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   min-height: var(--tap);
   padding: 0 20px;
   border: 0;
@@ -121,41 +88,454 @@ h3 {
   cursor: pointer;
 }
 
-.button:focus-visible {
+.button-ghost {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--azul-noche);
+}
+
+.button:focus-visible,
+.program-card:focus-visible,
+.joystick:focus-visible {
   outline: 3px solid var(--azul-noche);
   outline-offset: 3px;
 }
+
+.scene-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.scene-nav .button:only-child {
+  margin-left: auto;
+}
+
+.kicker {
+  margin: 0 0 2px;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.hint {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+/* ---------- Capas de escena ---------- */
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.scene-layer > * {
+  pointer-events: auto;
+}
+
+/* Panel: hoja inferior en móvil (deja ver a los personajes arriba), tarjeta lateral en escritorio. */
+.panel {
+  inset: auto var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+  max-height: 58dvh;
+  overflow-y: auto;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rosa-palo) 90%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgb(38 70 83 / 0.18);
+  pointer-events: auto;
+}
+
+.panel h1 {
+  font-size: clamp(1.5rem, 5.5vw, 2rem);
+}
+
+@media (min-width: 900px) {
+  .panel {
+    inset: 50% 32px auto auto;
+    width: 400px;
+    max-height: calc(100dvh - 64px);
+    transform: translateY(-50%);
+  }
+}
+
+/* ---------- 1 · Carga ---------- */
+
+.intro-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: var(--gutter);
+  text-align: center;
+  background: linear-gradient(var(--lila), var(--rosa-palo) 45%, var(--durazno) 78%, var(--coral));
+}
+
+.intro-sun {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--dorado);
+  box-shadow: 0 0 0 14px color-mix(in srgb, var(--acento) 35%, transparent), 0 0 60px 30px color-mix(in srgb, var(--rosa-palo) 80%, transparent);
+}
+
+.intro-dedication {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.intro-screen h1 {
+  font-size: clamp(2rem, 9vw, 3.2rem);
+}
+
+.intro-tagline {
+  margin: 0;
+  font-weight: 600;
+}
+
+.intro-status {
+  margin: 12px 0 0;
+}
+
+.intro-progress {
+  width: min(280px, 80vw);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--blanco-espuma) 70%, transparent);
+}
+
+.intro-progress span {
+  display: block;
+  height: 100%;
+  background: var(--acento);
+  transition: width 0.3s ease;
+}
+
+/* ---------- 2 · Bienvenida ---------- */
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-title {
+  display: grid;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+  text-align: center;
+}
+
+.welcome-title span {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.35rem;
+}
+
+.welcome-title strong {
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
+}
+
+.bubbles {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 520px);
+}
+
+.bubble {
+  position: relative;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--blanco-espuma);
+  box-shadow: 0 6px 18px rgb(38 70 83 / 0.12);
+}
+
+.bubble-mama {
+  margin-right: 12%;
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-papa {
+  margin-left: 12%;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-name {
+  display: block;
+  font-weight: 700;
+  color: var(--azul-noche);
+}
+
+.welcome .scene-nav,
+.walk .scene-nav {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  margin: 0;
+}
+
+/* ---------- 3 · Llegada ---------- */
+
+.walk-caption {
+  justify-self: center;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+  font-weight: 600;
+}
+
+/* ---------- 4 · Detalles ---------- */
+
+.details-list {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.details-list div {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--blanco-espuma);
+}
+
+.details-list dt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.details-list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ---------- 5 · Transición de ola ---------- */
+
+.wave-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: all;
+}
+
+.wave-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 130%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(var(--turquesa), var(--azul-noche));
+  color: var(--blanco-espuma);
+  animation: wave-wash var(--wave-ms) ease-in-out forwards;
+}
+
+.wave-body p {
+  margin: 0;
+  padding: 0 var(--gutter);
+  font-family: var(--font-title);
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  text-align: center;
+}
+
+.wave-crest {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  height: 90px;
+  fill: var(--turquesa);
+}
+
+.wave-foam {
+  fill: none;
+  stroke: var(--blanco-espuma);
+  stroke-width: 6;
+}
+
+@keyframes wave-wash {
+  0% { transform: translateY(0); }
+  45%, 55% { transform: translateY(-100%); }
+  100% { transform: translateY(-230%); }
+}
+
+.wave-transition.is-reduced .wave-body {
+  top: 0;
+  height: 100%;
+  animation: wave-fade var(--wave-ms) linear forwards;
+}
+
+.wave-transition.is-reduced .wave-crest {
+  display: none;
+}
+
+@keyframes wave-fade {
+  0%, 100% { opacity: 0; }
+  40%, 60% { opacity: 1; }
+}
+
+/* ---------- 6 · Programa ---------- */
+
+.program-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.program-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--blanco-espuma);
+  color: var(--azul-noche);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.program-card[aria-pressed='true'] {
+  border-color: var(--acento);
+  background: color-mix(in srgb, var(--acento) 25%, var(--blanco-espuma));
+}
+
+.program-time {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.program-description {
+  grid-column: 1 / -1;
+  font-size: 0.95rem;
+}
+
+/* ---------- 9 · Explorar ---------- */
+
+.explore {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.explore-head {
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+}
+
+.explore-head h1 {
+  font-size: 1.4rem;
+}
+
+.explore-controls {
+  position: absolute;
+  left: var(--gutter);
+  bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  display: grid;
+  gap: 8px;
+  max-width: calc(100% - 160px);
+}
+
+.explore .scene-nav {
+  margin: 0;
+}
+
+.joystick {
+  position: absolute;
+  right: var(--gutter);
+  bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--blanco-espuma) 55%, transparent);
+  box-shadow: inset 0 0 0 2px var(--azul-noche);
+  touch-action: none;
+}
+
+.joystick span {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--acento);
+  box-shadow: 0 4px 10px rgb(38 70 83 / 0.25);
+  pointer-events: none;
+}
+
+/* ---------- Respaldo de texto ---------- */
 
 .fallback {
   position: absolute;
   inset: 0;
   display: grid;
   place-content: center;
+  justify-items: center;
   gap: 8px;
-  padding: 24px;
+  padding: var(--gutter);
   background: var(--arena);
   text-align: center;
 }
 
+.fallback .details-list {
+  width: min(100%, 420px);
+  text-align: left;
+}
+
+/* ---------- Solo desarrollo ---------- */
+
 .fps {
   position: absolute;
   left: 8px;
-  bottom: 8px;
+  top: 8px;
+  z-index: 20;
   padding: 4px 8px;
   border-radius: 6px;
   background: rgb(38 70 83 / 0.8);
   color: var(--blanco-espuma);
   font: 600 12px/1.4 ui-monospace, monospace;
+  pointer-events: none;
 }
 
 .dev-panel {
   position: absolute;
   right: 8px;
-  bottom: 40px;
+  top: 8px;
+  z-index: 20;
   display: grid;
   gap: 6px;
-  max-width: calc(100vw - 16px);
-  font: 600 12px/1.2 var(--font-body);
+  max-width: min(420px, calc(100vw - 16px));
+  font: 600 11px/1.2 var(--font-body);
+  opacity: 0.85;
 }
 
 .dev-panel fieldset {
@@ -177,7 +557,7 @@ h3 {
 }
 
 .dev-panel button {
-  padding: 6px 8px;
+  padding: 4px 6px;
   border: 0;
   border-radius: 6px;
   background: var(--rosa-palo);
@@ -197,5 +577,10 @@ h3 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* La ola reducida es un fundido que sí necesita su duración. */
+  .wave-transition.is-reduced .wave-body {
+    animation-duration: var(--wave-ms) !important;
   }
 }

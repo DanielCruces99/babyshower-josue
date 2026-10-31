@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { AnimationMixer, LoopOnce, LoopRepeat, Vector3 } from 'three'
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { PALETTE } from '../config/palette.mjs'
 import { clampDelta } from '../lib/renderProfile.mjs'
-import { HOLDING, HOST_MODELS, IDLE, LOOPING, modelPath } from './characterAnimations.mjs'
+import { HOLDING, HOST_MODELS, IDLE, LOOPING, WALK, modelPath } from './characterAnimations.mjs'
 import { blendWeights, prepareCharacterClips, resolveClip } from './characterMotion.mjs'
 
 const url = model => import.meta.env.BASE_URL + modelPath(model)
@@ -25,10 +25,11 @@ function applyTint(scene, tint) {
 const shadowVertex = 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }'
 const shadowFragment = 'varying vec2 vUv; void main() { float r = length((vUv - 0.5) * 2.0); float a = 0.3 * pow(max(0.0, 1.0 - r * r), 2.0); gl_FragColor = vec4(0.149, 0.275, 0.325, a); }'
 
-export default function Character({ host, actionName = IDLE, position, rotationY = 0 }) {
+// La posición y el giro los maneja la coreografía a través de groupRef (nunca con setState por fotograma).
+// walkSpeed (m/s) ajusta la velocidad de Walking para que los pies no patinen.
+export default function Character({ host, actionName = IDLE, groupRef, walkSpeed = 1 }) {
   const { model, tint } = HOST_MODELS[host]
   const source = useGLTF(url(model))
-  const group = useRef()
 
   const rig = useMemo(() => {
     const scene = clone(source.scene)
@@ -51,9 +52,9 @@ export default function Character({ host, actionName = IDLE, position, rotationY
     if (rig.weights[rig.selected] < 0.01 || action.time >= action.getClip().duration) action.reset()
     action.setLoop(LOOPING.test(name) ? LoopRepeat : LoopOnce, Infinity)
     action.clampWhenFinished = true
-    action.timeScale = name === IDLE ? 0.8 : 1
+    action.timeScale = name === IDLE ? 0.8 : name === WALK && rig.stride > 0 ? walkSpeed * action.getClip().duration / rig.stride : 1
     action.play()
-  }, [actionName, rig])
+  }, [actionName, rig, walkSpeed])
 
   useEffect(() => () => { rig.mixer.stopAllAction() }, [rig])
 
@@ -69,7 +70,7 @@ export default function Character({ host, actionName = IDLE, position, rotationY
   })
 
   return (
-    <group ref={group} position={position} rotation-y={rotationY}>
+    <group ref={groupRef}>
       <primitive object={rig.scene} />
       {/* Sombra de contacto falsa: ancla los pies sin mapas de sombra. */}
       <mesh position={[0, 0.02, 0.05]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
