@@ -1,0 +1,141 @@
+/* Paleta «Una ola de amor». Debe coincidir con src/config/palette.mjs (lo verifica un test). */
+:root {
+  --coral: #F2876B;
+  --durazno: #F7C59F;
+  --arena: #EFE3CF;
+  --turquesa: #2A9D8F;
+  --azul-noche: #264653;
+  --blanco-espuma: #FFF8F0;
+  --acento: #E58C9A;
+  --rosa-palo: #F6D3D5;
+  --lila: #B9A3C9;
+  --dorado: #E9B872;
+
+  --font-title: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --radius: 18px;
+  --tap: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--durazno);
+  color: var(--azul-noche);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: linear-gradient(var(--lila), var(--rosa-palo) 45%, var(--durazno) 75%, var(--coral));
+}
+
+.scene-canvas {
+  position: absolute !important;
+  inset: 0;
+}
+
+.hero {
+  position: absolute;
+  top: max(24px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 560px);
+  padding: 18px 22px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rosa-palo) 82%, transparent);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+}
+
+.hero-kicker {
+  margin: 0 0 4px;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--acento);
+  color: var(--azul-noche);
+  font: 700 1rem var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--azul-noche);
+  outline-offset: 3px;
+}
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--arena);
+  text-align: center;
+}
+
+.fps {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgb(38 70 83 / 0.8);
+  color: var(--blanco-espuma);
+  font: 600 12px/1.4 ui-monospace, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

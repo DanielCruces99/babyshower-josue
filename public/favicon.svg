@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B9A3C9"/>
+      <stop offset=".55" stop-color="#F6D3D5"/>
+      <stop offset="1" stop-color="#F7C59F"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#cielo)"/>
+  <circle cx="32" cy="36" r="13" fill="#E58C9A"/>
+  <path d="M0 40c8-5 13-5 21 0s13 5 22 0 13-5 21 0v24H0z" fill="#2A9D8F"/>
+  <path d="M0 48c8-4 13-4 21 0s13 4 22 0 13-4 21 0" fill="none" stroke="#FFF8F0" stroke-width="3" stroke-linecap="round"/>
+</svg>

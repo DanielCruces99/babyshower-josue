@@ -1,0 +1,19 @@
+node_modules/
+dist/
+*.log
+
+# Variables locales (solo .env.example va al repo)
+.env*
+!.env.example
+
+# Originales sin optimizar (FBX, GLB de Blender/Mixamo)
+public/models/source/
+
+# Datos personales de invitados
+scripts/invitados.csv
+scripts/links-invitados.csv
+
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
