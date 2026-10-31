@@ -1,7 +1,8 @@
 # Junta los FBX de Mixamo de un personaje en un solo GLB con una animación por archivo.
 # Lo ejecuta scripts/mixamo-to-glb.mjs:
 #   blender -b --factory-startup -P mixamo_to_glb.py -- <carpeta_fbx> <salida.glb>
-# El FBX más pesado es el que trae el modelo ("With Skin"); el resto solo aporta su animación.
+# El modelo sale del FBX indicado en modelo.txt (dentro de la carpeta) o, si no existe, del más pesado.
+# De los demás FBX solo se toma la animación; sus mallas se descartan.
 # El nombre de cada clip es el nombre del archivo (Idle.fbx → "Idle").
 import os
 import sys
@@ -12,7 +13,14 @@ src_dir, out_path = sys.argv[sys.argv.index('--') + 1:][:2]
 fbx_files = sorted(f for f in os.listdir(src_dir) if f.lower().endswith('.fbx'))
 if not fbx_files:
     sys.exit(f'No hay .fbx en {src_dir}')
-base_file = max(fbx_files, key=lambda f: os.path.getsize(os.path.join(src_dir, f)))
+model_txt = os.path.join(src_dir, 'modelo.txt')
+if os.path.exists(model_txt):
+    with open(model_txt, encoding='utf-8') as f:
+        base_file = f.read().strip()
+    if base_file not in fbx_files:
+        sys.exit(f'modelo.txt apunta a {base_file}, que no está en {src_dir}')
+else:
+    base_file = max(fbx_files, key=lambda f: os.path.getsize(os.path.join(src_dir, f)))
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.context.scene.render.fps = 30  # Mixamo exporta a 30 fps
