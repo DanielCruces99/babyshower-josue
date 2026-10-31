@@ -88,6 +88,24 @@ h3 {
   font-size: 1.5rem;
 }
 
+/* Celular en horizontal: tarjeta compacta para no tapar el sol ni el horizonte. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero {
+    top: max(10px, env(safe-area-inset-top));
+    width: min(70vw, 460px);
+    padding: 8px 16px;
+  }
+
+  .hero h1 {
+    font-size: 1.25rem;
+  }
+
+  .hero-kicker {
+    font-size: 1.15rem;
+    margin: 0;
+  }
+}
+
 .button {
   display: inline-flex;
   align-items: center;
