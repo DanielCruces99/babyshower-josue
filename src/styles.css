@@ -14,9 +14,10 @@
   --font-title: 'Fraunces', Georgia, serif;
   --font-body: 'Manrope', system-ui, sans-serif;
   --font-hand: 'Caveat', cursive;
-  --radius: 18px;
+  --radius: 20px;
   --tap: 44px;
   --gutter: 16px;
+  --shadow: 0 12px 32px rgb(38 70 83 / 0.16);
 }
 
 *,
@@ -72,25 +73,42 @@ h3 {
 
 /* ---------- Botones y navegación ---------- */
 
+/* 19 px en negrita = texto grande para WCAG: el azul noche sobre el acento (4.1:1) cumple AA. */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   min-height: var(--tap);
-  padding: 0 20px;
+  padding: 0 22px;
   border: 0;
   border-radius: 999px;
   background: var(--acento);
   color: var(--azul-noche);
-  font: 700 1rem var(--font-body);
+  font: 700 1.1875rem/1.2 var(--font-body);
   text-decoration: none;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgb(229 140 154 / 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(1px);
 }
 
 .button-ghost {
-  background: transparent;
+  background: var(--blanco-espuma);
   box-shadow: inset 0 0 0 2px var(--azul-noche);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .button:focus-visible,
@@ -116,12 +134,13 @@ h3 {
   margin: 0 0 2px;
   font-family: var(--font-hand);
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  line-height: 1.1;
 }
 
 .hint {
   margin: 4px 0 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 /* ---------- Capas de escena ---------- */
@@ -131,10 +150,15 @@ h3 {
   inset: 0;
   padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   pointer-events: none;
+  animation: layer-in 0.45s ease both;
 }
 
 .scene-layer > * {
   pointer-events: auto;
+}
+
+@keyframes layer-in {
+  from { opacity: 0; transform: translateY(12px); }
 }
 
 /* Panel: hoja inferior en móvil (deja ver a los personajes arriba), tarjeta lateral en escritorio. */
@@ -142,24 +166,48 @@ h3 {
   inset: auto var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   max-height: 58dvh;
   overflow-y: auto;
-  padding: 18px 20px;
+  padding: 20px;
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--rosa-palo) 90%, transparent);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgb(38 70 83 / 0.18);
+  background: color-mix(in srgb, var(--rosa-palo) 92%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  border: 1px solid color-mix(in srgb, var(--blanco-espuma) 70%, transparent);
   pointer-events: auto;
 }
 
 .panel h1 {
-  font-size: clamp(1.5rem, 5.5vw, 2rem);
+  font-size: clamp(1.6rem, 6vw, 2.1rem);
+  padding-right: 40px;
+}
+
+/* Volver / Continuar siempre visibles al pie del panel, aunque el contenido tenga scroll. */
+.panel .scene-nav {
+  position: sticky;
+  bottom: -20px;
+  margin: 12px -20px -20px;
+  padding: 12px 20px 16px;
+  background: linear-gradient(transparent, var(--rosa-palo) 30%);
+}
+
+.panel-deco {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  color: var(--acento);
+  transform: rotate(14deg);
 }
 
 @media (min-width: 900px) {
   .panel {
     inset: 50% 32px auto auto;
-    width: 400px;
+    width: 410px;
     max-height: calc(100dvh - 64px);
     transform: translateY(-50%);
+    animation-name: panel-in;
+  }
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translate(16px, -50%); }
   }
 }
 
@@ -168,57 +216,145 @@ h3 {
 .intro-screen {
   position: absolute;
   inset: 0;
+  z-index: 5;
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 8px;
-  padding: var(--gutter);
-  text-align: center;
-  background: linear-gradient(var(--lila), var(--rosa-palo) 45%, var(--durazno) 78%, var(--coral));
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+  background: linear-gradient(var(--lila), var(--rosa-palo) 38%, var(--durazno) 66%, var(--coral) 82%);
+  transition: opacity 0.9s ease;
 }
 
-.intro-sun {
-  width: 96px;
-  height: 96px;
-  margin-bottom: 8px;
-  border-radius: 50%;
-  background: var(--dorado);
-  box-shadow: 0 0 0 14px color-mix(in srgb, var(--acento) 35%, transparent), 0 0 60px 30px color-mix(in srgb, var(--rosa-palo) 80%, transparent);
+.intro-screen.is-done {
+  opacity: 0;
+  transition-delay: 0.2s;
+}
+
+.intro-card {
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(100% - 2 * var(--gutter), 460px);
+  margin-top: max(var(--gutter), env(safe-area-inset-top));
+  padding: 22px 24px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rosa-palo) 88%, transparent);
+  box-shadow: var(--shadow);
+  text-align: center;
 }
 
 .intro-dedication {
   margin: 0;
   font-family: var(--font-hand);
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  line-height: 1.15;
 }
 
-.intro-screen h1 {
-  font-size: clamp(2rem, 9vw, 3.2rem);
+.intro-card h1 {
+  font-size: clamp(2.2rem, 10vw, 3.4rem);
+  letter-spacing: 0.01em;
 }
 
 .intro-tagline {
-  margin: 0;
+  margin: 0 0 8px;
   font-weight: 600;
 }
 
 .intro-status {
-  margin: 12px 0 0;
+  margin: 4px 0 0;
 }
 
 .intro-progress {
-  width: min(280px, 80vw);
-  height: 8px;
+  width: min(280px, 100%);
+  height: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--blanco-espuma) 70%, transparent);
+  background: var(--blanco-espuma);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--azul-noche) 25%, transparent);
 }
 
 .intro-progress span {
   display: block;
   height: 100%;
-  background: var(--acento);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--acento), var(--dorado));
   transition: width 0.3s ease;
+}
+
+.intro-horizon {
+  position: relative;
+  height: 42dvh;
+}
+
+.intro-sun {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  width: 128px;
+  height: 128px;
+  margin-left: -64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #fff3d6, var(--dorado) 70%);
+  animation: sun-set 7s ease-in-out infinite alternate;
+}
+
+.intro-halo {
+  position: absolute;
+  inset: -34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--acento) 55%, transparent) 40%, transparent 70%);
+  animation: halo-pulse 3.5s ease-in-out infinite;
+}
+
+.intro-monogram {
+  position: relative;
+  color: var(--acento);
+}
+
+.intro-sea {
+  position: absolute;
+  inset: auto 0 0;
+  height: 110px;
+  background: linear-gradient(var(--turquesa), var(--azul-noche));
+}
+
+.intro-wave {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 200%;
+  height: 40px;
+  margin-bottom: -2px;
+  animation: waves-drift 9s linear infinite;
+}
+
+.intro-wave-back {
+  fill: color-mix(in srgb, var(--turquesa) 70%, var(--rosa-palo));
+  bottom: calc(100% + 8px);
+  animation-duration: 14s;
+  animation-direction: reverse;
+}
+
+.intro-wave-front {
+  fill: var(--turquesa);
+}
+
+/* El sol baja hasta hundirse un poco tras las olas y vuelve a subir, en bucle suave. */
+@keyframes sun-set {
+  from { transform: translateY(-16px); }
+  to { transform: translateY(40px); }
+}
+
+@keyframes halo-pulse {
+  50% { transform: scale(1.08); opacity: 0.8; }
+}
+
+@keyframes waves-drift {
+  to { transform: translateX(-50%); }
 }
 
 /* ---------- 2 · Bienvenida ---------- */
@@ -227,56 +363,88 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .welcome-title {
   display: grid;
-  padding: 10px 20px;
+  padding: 10px 22px 12px;
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+  background: color-mix(in srgb, var(--rosa-palo) 88%, transparent);
+  box-shadow: var(--shadow);
   text-align: center;
 }
 
 .welcome-title span {
   font-family: var(--font-hand);
   font-weight: 600;
-  font-size: 1.35rem;
+  font-size: 1.45rem;
+  line-height: 1.1;
 }
 
 .welcome-title strong {
-  font-size: clamp(1.5rem, 6vw, 2.2rem);
+  font-size: clamp(1.6rem, 6.5vw, 2.3rem);
 }
 
 .bubbles {
   display: grid;
-  gap: 8px;
-  width: min(100%, 520px);
+  gap: 12px;
+  width: min(100%, 540px);
 }
 
 .bubble {
   position: relative;
   margin: 0;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius);
-  background: var(--blanco-espuma);
-  box-shadow: 0 6px 18px rgb(38 70 83 / 0.12);
+  box-shadow: var(--shadow);
+  animation: bubble-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* La colita apunta hacia su personaje: mamá a la izquierda, papá a la derecha. */
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  border: inherit;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
 }
 
 .bubble-mama {
-  margin-right: 12%;
-  border-bottom-left-radius: 4px;
+  margin-right: 14%;
+  background: var(--rosa-palo);
+  border: 2px solid var(--acento);
+}
+
+.bubble-mama::after {
+  left: 28px;
 }
 
 .bubble-papa {
-  margin-left: 12%;
-  border-bottom-right-radius: 4px;
+  margin-left: 14%;
+  background: var(--blanco-espuma);
+  border: 2px solid var(--turquesa);
+}
+
+.bubble-papa::after {
+  right: 28px;
 }
 
 .bubble-name {
   display: block;
-  font-weight: 700;
-  color: var(--azul-noche);
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+@keyframes bubble-pop {
+  from { opacity: 0; transform: scale(0.85) translateY(10px); }
 }
 
 .welcome .scene-nav,
@@ -294,10 +462,13 @@ h3 {
   justify-self: center;
   width: fit-content;
   margin: 0 auto;
-  padding: 10px 18px;
+  padding: 10px 20px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+  background: color-mix(in srgb, var(--rosa-palo) 88%, transparent);
+  box-shadow: var(--shadow);
+  font-family: var(--font-hand);
   font-weight: 600;
+  font-size: 1.5rem;
 }
 
 /* ---------- 4 · Detalles ---------- */
@@ -305,25 +476,50 @@ h3 {
 .details-list {
   display: grid;
   gap: 10px;
-  margin: 14px 0;
+  margin: 16px 0;
 }
 
-.details-list div {
+.details-list > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--blanco-espuma);
 }
 
+.details-list svg {
+  grid-row: span 2;
+  color: var(--turquesa);
+}
+
 .details-list dt {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .details-list dd {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.details-list small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+
+.details-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.details-actions .button {
+  width: 100%;
 }
 
 /* ---------- 5 · Transición de ola ---------- */
@@ -336,34 +532,57 @@ h3 {
   pointer-events: all;
 }
 
-.wave-body {
+.wave-layer {
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
-  height: 130%;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(var(--turquesa), var(--azul-noche));
-  color: var(--blanco-espuma);
-  animation: wave-wash var(--wave-ms) ease-in-out forwards;
+  height: 135%;
+  animation: wave-wash var(--wave-ms) cubic-bezier(0.45, 0, 0.35, 1) forwards;
 }
 
-.wave-body p {
+.wave-back {
+  background: color-mix(in srgb, var(--turquesa) 55%, var(--rosa-palo));
+  fill: color-mix(in srgb, var(--turquesa) 55%, var(--rosa-palo));
+}
+
+.wave-middle {
+  background: var(--turquesa);
+  fill: var(--turquesa);
+  animation-delay: calc(var(--wave-ms) * 0.04);
+}
+
+.wave-front {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(var(--turquesa), var(--azul-noche) 45%);
+  fill: var(--turquesa);
+  color: var(--blanco-espuma);
+  animation-delay: calc(var(--wave-ms) * 0.08);
+}
+
+/* Texto grande (≥ 19 px negrita) sobre la parte oscura de la ola: cumple AA. */
+.wave-front p {
+  position: relative;
   margin: 0;
+  max-width: 18ch;
   padding: 0 var(--gutter);
   font-family: var(--font-title);
-  font-size: clamp(1.3rem, 5vw, 2rem);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
   text-align: center;
 }
 
 .wave-crest {
   position: absolute;
   left: 0;
-  bottom: 100%;
+  bottom: calc(100% - 1px);
   width: 100%;
   height: 90px;
-  fill: var(--turquesa);
+}
+
+.wave-middle .wave-crest {
+  transform: scaleX(-1);
 }
 
 .wave-foam {
@@ -372,20 +591,39 @@ h3 {
   stroke-width: 6;
 }
 
+.wave-sparkles span {
+  position: absolute;
+  top: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff, var(--dorado) 60%, transparent 70%);
+  opacity: 0;
+  animation: sparkle-rise calc(var(--wave-ms) * 0.7) ease-out forwards;
+}
+
 @keyframes wave-wash {
   0% { transform: translateY(0); }
-  45%, 55% { transform: translateY(-100%); }
-  100% { transform: translateY(-230%); }
+  42%, 58% { transform: translateY(-100%); }
+  100% { transform: translateY(-235%); }
 }
 
-.wave-transition.is-reduced .wave-body {
+@keyframes sparkle-rise {
+  0% { opacity: 0; transform: translateY(40px) scale(0.6); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-160px) scale(1.2); }
+}
+
+.wave-transition.is-reduced .wave-back,
+.wave-transition.is-reduced .wave-middle,
+.wave-transition.is-reduced .wave-crest,
+.wave-transition.is-reduced .wave-sparkles {
+  display: none;
+}
+
+.wave-transition.is-reduced .wave-front {
   top: 0;
   height: 100%;
+  background: var(--azul-noche);
   animation: wave-fade var(--wave-ms) linear forwards;
-}
-
-.wave-transition.is-reduced .wave-crest {
-  display: none;
 }
 
 @keyframes wave-fade {
@@ -405,24 +643,43 @@ h3 {
 
 .program-card {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto auto 1fr;
   column-gap: 10px;
-  align-items: baseline;
+  align-items: center;
   width: 100%;
   min-height: var(--tap);
   padding: 8px 12px;
   border: 2px solid transparent;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--blanco-espuma);
   color: var(--azul-noche);
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.program-card:hover {
+  transform: translateY(-1px);
 }
 
 .program-card[aria-pressed='true'] {
   border-color: var(--acento);
-  background: color-mix(in srgb, var(--acento) 25%, var(--blanco-espuma));
+  background: color-mix(in srgb, var(--acento) 22%, var(--blanco-espuma));
+}
+
+.program-icon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--rosa-palo);
+}
+
+.program-card[aria-pressed='true'] .program-icon {
+  background: var(--acento);
 }
 
 .program-time {
@@ -431,7 +688,7 @@ h3 {
 }
 
 .program-description {
-  grid-column: 1 / -1;
+  grid-column: 2 / -1;
   font-size: 0.95rem;
 }
 
@@ -449,7 +706,8 @@ h3 {
   max-width: 100%;
   padding: 10px 16px;
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--rosa-palo) 85%, transparent);
+  background: color-mix(in srgb, var(--rosa-palo) 88%, transparent);
+  box-shadow: var(--shadow);
 }
 
 .explore-head h1 {
@@ -478,8 +736,8 @@ h3 {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--blanco-espuma) 55%, transparent);
-  box-shadow: inset 0 0 0 2px var(--azul-noche);
+  background: color-mix(in srgb, var(--blanco-espuma) 60%, transparent);
+  box-shadow: inset 0 0 0 2px var(--azul-noche), var(--shadow);
   touch-action: none;
 }
 
@@ -509,6 +767,10 @@ h3 {
 .fallback .details-list {
   width: min(100%, 420px);
   text-align: left;
+}
+
+.fallback .details-list > div {
+  grid-template-columns: 1fr;
 }
 
 /* ---------- Solo desarrollo ---------- */
@@ -570,6 +832,66 @@ h3 {
   background: var(--acento);
 }
 
+/* Celular en horizontal: menos alto en paneles y carga. */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Tarjeta lateral (como en escritorio): la cámara deja a los anfitriones a la izquierda. */
+  .panel {
+    inset: var(--gutter) max(var(--gutter), env(safe-area-inset-right)) var(--gutter) auto;
+    width: min(56%, 440px);
+    max-height: none;
+    transform: none;
+    padding: 14px 18px;
+  }
+
+  .panel .scene-nav {
+    bottom: -14px;
+    margin: 8px -18px -14px;
+    padding: 10px 18px 12px;
+  }
+
+  .panel h1 {
+    font-size: 1.45rem;
+  }
+
+  .details-list {
+    gap: 6px;
+    margin: 10px 0;
+  }
+
+  .intro-horizon {
+    height: 34dvh;
+  }
+
+  .intro-sun {
+    width: 80px;
+    height: 80px;
+    margin-left: -40px;
+    bottom: 100px;
+  }
+
+  /* Burbujas a los costados para que los anfitriones se vean en el centro. */
+  .bubbles {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .bubble {
+    width: 31%;
+    font-size: 0.95rem;
+  }
+
+  .bubble-mama,
+  .bubble-papa {
+    margin: 0;
+  }
+
+  .bubble-papa {
+    margin-left: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -580,7 +902,7 @@ h3 {
   }
 
   /* La ola reducida es un fundido que sí necesita su duración. */
-  .wave-transition.is-reduced .wave-body {
+  .wave-transition.is-reduced .wave-front {
     animation-duration: var(--wave-ms) !important;
   }
 }

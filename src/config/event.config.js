@@ -41,6 +41,8 @@ export const EVENT = {
       time: 'Hora',
       place: 'Lugar',
       map: 'Ver en Google Maps',
+      calendar: 'Agregar al calendario',
+      calendarPending: 'Podrás agregarlo a tu calendario cuando confirmemos la fecha.',
     },
     program: {
       kicker: 'Programa',

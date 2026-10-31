@@ -1,4 +1,5 @@
 import { EVENT } from '../config/event.config.js'
+import Icon from './icons.jsx'
 import SceneNav, { useSceneFocus } from './SceneNav.jsx'
 
 const { texts, program } = EVENT
@@ -16,6 +17,7 @@ export default function Program({ selected, onSelect, onBack, onNext }) {
         {program.map((item, i) => (
           <li key={item.id}>
             <button type="button" className="program-card" aria-pressed={selected === i} onClick={() => onSelect(i)}>
+              <span className="program-icon"><Icon name={item.icon} /></span>
               <span className="program-time">{item.time}</span>
               <strong>{item.title}</strong>
               <span className="program-description">{item.description}</span>
