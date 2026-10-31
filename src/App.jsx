@@ -5,6 +5,7 @@ import { detectMobileProfile, renderSettings } from './lib/renderProfile.mjs'
 import RenderLifecycle from './RenderLifecycle.jsx'
 import BeachScene from './scene/BeachScene.jsx'
 import FpsMeter from './scene/FpsMeter.jsx'
+import DevAnimationPanel from './ui/DevAnimationPanel.jsx'
 
 // Fase 2: playa de prueba con cámara fija. La máquina de 9 escenas llega en la fase 4.
 const CAMERA = { position: [0, 2.3, 10], fov: 50, near: 0.1, far: 5000 }
@@ -26,7 +27,10 @@ export default function App() {
   const mobile = useMemo(() => detectMobileProfile(), [])
   const settings = useMemo(() => renderSettings(mobile, window.devicePixelRatio), [mobile])
   const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
-  const showFps = import.meta.env.DEV || new URLSearchParams(window.location.search).has('fps')
+  const params = useMemo(() => new URLSearchParams(window.location.search), [])
+  const showFps = import.meta.env.DEV || params.has('fps')
+  const showDebug = import.meta.env.DEV || params.has('debug')
+  const [actions, setActions] = useState({})
   const fpsRef = useRef(null)
   const [contextLost, setContextLost] = useState(false)
   const onContextLost = useCallback(() => setContextLost(true), [])
@@ -43,7 +47,7 @@ export default function App() {
         aria-hidden="true"
       >
         <RenderLifecycle onContextLost={onContextLost} onContextRestored={onContextRestored} />
-        <BeachScene settings={settings} mobile={mobile} reducedMotion={reducedMotion} />
+        <BeachScene settings={settings} mobile={mobile} reducedMotion={reducedMotion} actions={actions} />
         {showFps && <FpsMeter target={fpsRef} label={mobile ? 'perfil móvil' : 'perfil desktop'} />}
       </Canvas>
 
@@ -52,6 +56,7 @@ export default function App() {
         <h1>{EVENT.texts.tagline}</h1>
       </header>
 
+      {showDebug && <DevAnimationPanel actions={actions} onChange={setActions} />}
       {showFps && <output className="fps" ref={fpsRef} aria-live="off" />}
       {contextLost && <TextFallback />}
     </div>

@@ -148,6 +148,48 @@ h3 {
   font: 600 12px/1.4 ui-monospace, monospace;
 }
 
+.dev-panel {
+  position: absolute;
+  right: 8px;
+  bottom: 40px;
+  display: grid;
+  gap: 6px;
+  max-width: calc(100vw - 16px);
+  font: 600 12px/1.2 var(--font-body);
+}
+
+.dev-panel fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 6px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(38 70 83 / 0.8);
+}
+
+.dev-panel legend {
+  float: left;
+  width: 100%;
+  color: var(--blanco-espuma);
+  text-transform: uppercase;
+}
+
+.dev-panel button {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--rosa-palo);
+  color: var(--azul-noche);
+  font: inherit;
+  cursor: pointer;
+}
+
+.dev-panel button[aria-pressed='true'] {
+  background: var(--acento);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

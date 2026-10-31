@@ -13,6 +13,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test \"src/**/*.test.mjs\"",
+    "convert": "node scripts/mixamo-to-glb.mjs",
     "optimize": "node scripts/optimize-assets.mjs",
     "guest-links": "node scripts/make-guest-links.mjs",
     "budget": "node scripts/check-budget.mjs",
