@@ -55,10 +55,7 @@ export default function Character({ host, actionName = IDLE, position, rotationY
     action.play()
   }, [actionName, rig])
 
-  useEffect(() => () => {
-    rig.mixer.stopAllAction()
-    rig.mixer.uncacheRoot(rig.scene)
-  }, [rig])
+  useEffect(() => () => { rig.mixer.stopAllAction() }, [rig])
 
   useFrame((_, delta) => {
     const dt = clampDelta(delta)
